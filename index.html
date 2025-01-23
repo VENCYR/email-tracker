@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Email Contribution Tracker</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding: 20px;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(52, 14px);
+      gap: 2px;
+      justify-content: center;
+      margin-top: 20px;
+    }
+    .cell {
+      width: 14px;
+      height: 14px;
+      border-radius: 2px;
+      cursor: pointer;
+    }
+    .bg-0 { background-color: #f0f0f0; } /* White for 0 */
+    .bg-1-6 { background-color: #ffff99; } /* Light yellow for 1–6 */
+    .bg-7-9 { background-color: #7fff7f; } /* Green for 7–9 */
+    .bg-10 { background-color: #006400; } /* Dark green for 10+ */
+    .input-container {
+      margin: 20px 0;
+    }
+    input[type="number"] {
+      width: 60px;
+      text-align: center;
+      margin-right: 5px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Email Contribution Tracker</h1>
+  <p>Click on a day to manually set the email count.</p>
+
+  <div id="grid" class="grid"></div>
+
+  <div class="input-container">
+    <input type="number" id="emailCount" placeholder="Enter count" min="0" max="10">
+    <button id="applyCount">Apply to Selected</button>
+  </div>
+
+  <script>
+    // Create a 52-week grid with 7 days per week
+    const data = Array.from({ length: 52 }, () =>
+      Array.from({ length: 7 }, () => 0) // Default count is 0 for all days
+    );
+
+    const grid = document.getElementById("grid");
+    const emailCountInput = document.getElementById("emailCount");
+    let selectedCell = null;
+
+    // Render the grid
+    function renderGrid() {
+      grid.innerHTML = ""; // Clear the grid
+      data.forEach((week, weekIndex) => {
+        week.forEach((day, dayIndex) => {
+          const cell = document.createElement("div");
+          cell.classList.add("cell");
+          cell.setAttribute("data-week", weekIndex);
+          cell.setAttribute("data-day", dayIndex);
+          cell.title = `Emails: ${day}`;
+          cell.style.backgroundColor = getColor(day);
+          cell.addEventListener("click", () => selectCell(cell));
+          grid.appendChild(cell);
+        });
+      });
+    }
+
+    // Get color based on email count
+    function getColor(count) {
+      if (count === 0) return "#f0f0f0"; // White
+      if (count >= 1 && count <= 6) return "#ffff99"; // Light yellow
+      if (count >= 7 && count <= 9) return "#7fff7f"; // Green
+      if (count >= 10) return "#006400"; // Dark green
+    }
+
+    // Handle cell selection
+    function selectCell(cell) {
+      if (selectedCell) {
+        selectedCell.style.outline = ""; // Clear previous selection
+      }
+      selectedCell = cell;
+      cell.style.outline = "2px solid #0000ff"; // Highlight selected cell
+    }
+
+    // Apply the email count to the selected cell
+    document.getElementById("applyCount").addEventListener("click", () => {
+      if (!selectedCell) {
+        alert("Please select a day first.");
+        return;
+      }
+
+      const count = parseInt(emailCountInput.value, 10);
+      if (isNaN(count) || count < 0) {
+        alert("Please enter a valid email count (0-10).");
+        return;
+      }
+
+      // Update data and re-render grid
+      const week = selectedCell.getAttribute("data-week");
+      const day = selectedCell.getAttribute("data-day");
+      data[week][day] = count;
+      renderGrid();
+    });
+
+    // Initial render
+    renderGrid();
+  </script>
+</body>
+</html>
