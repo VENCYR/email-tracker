@@ -3,32 +3,62 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Email Contribution Tracker</title>
+  <title>Sarup's Email Tracker</title>
   <style>
     body {
       font-family: Arial, sans-serif;
       text-align: center;
       padding: 20px;
     }
+    h1 {
+      margin-bottom: 10px;
+    }
+    p {
+      margin-bottom: 20px;
+    }
+    .chart-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .months {
+      display: grid;
+      grid-template-columns: repeat(53, 14px); /* Includes offset for day labels */
+      margin-left: 25px;
+      font-size: 12px;
+      text-align: center;
+      color: #555;
+    }
+    .grid-container {
+      display: flex;
+    }
+    .day-labels {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      font-size: 12px;
+      margin-right: 10px;
+      color: #555;
+      height: 98px; /* Matches the grid height */
+    }
     .grid {
       display: grid;
       grid-template-columns: repeat(52, 14px);
       gap: 2px;
-      justify-content: center;
-      margin-top: 20px;
     }
     .cell {
       width: 14px;
       height: 14px;
       border-radius: 2px;
       cursor: pointer;
+      text-align: center;
     }
     .bg-0 { background-color: #f0f0f0; } /* White for 0 */
     .bg-1-6 { background-color: #ffff99; } /* Light yellow for 1–6 */
     .bg-7-9 { background-color: #7fff7f; } /* Green for 7–9 */
     .bg-10 { background-color: #006400; } /* Dark green for 10+ */
     .input-container {
-      margin: 20px 0;
+      margin-top: 20px;
     }
     input[type="number"] {
       width: 60px;
@@ -38,10 +68,33 @@
   </style>
 </head>
 <body>
-  <h1>Email Contribution Tracker</h1>
-  <p>Click on a day to manually set the email count.</p>
+  <h1>Sarup's Email Tracker</h1>
+  <p>Track your daily emails for 2025. Click on a day to set the email count.</p>
 
-  <div id="grid" class="grid"></div>
+  <div class="chart-container">
+    <!-- Months -->
+    <div class="months">
+      <span>Jan</span><span></span><span></span><span>Feb</span><span></span><span></span>
+      <span>Mar</span><span></span><span></span><span>Apr</span><span></span><span></span>
+      <span>May</span><span></span><span></span><span>Jun</span><span></span><span></span>
+      <span>Jul</span><span></span><span></span><span>Aug</span><span></span><span></span>
+      <span>Sep</span><span></span><span></span><span>Oct</span><span></span><span></span>
+      <span>Nov</span><span></span><span></span><span>Dec</span>
+    </div>
+
+    <!-- Grid with Day Labels -->
+    <div class="grid-container">
+      <!-- Day Labels -->
+      <div class="day-labels">
+        <span>Mon</span>
+        <span>Wed</span>
+        <span>Fri</span>
+      </div>
+
+      <!-- Grid -->
+      <div class="grid" id="grid"></div>
+    </div>
+  </div>
 
   <div class="input-container">
     <input type="number" id="emailCount" placeholder="Enter count" min="0" max="10">
@@ -49,9 +102,9 @@
   </div>
 
   <script>
-    // Create a 52-week grid with 7 days per week
+    // Generate data for 52 weeks, 7 days per week
     const data = Array.from({ length: 52 }, () =>
-      Array.from({ length: 7 }, () => 0) // Default count is 0 for all days
+      Array.from({ length: 7 }, () => 0)
     );
 
     const grid = document.getElementById("grid");
@@ -67,9 +120,17 @@
           cell.classList.add("cell");
           cell.setAttribute("data-week", weekIndex);
           cell.setAttribute("data-day", dayIndex);
-          cell.title = `Emails: ${day}`;
-          cell.style.backgroundColor = getColor(day);
-          cell.addEventListener("click", () => selectCell(cell));
+          cell.contentEditable = true; // Allow typing in the cell
+          cell.textContent = data[weekIndex][dayIndex]; // Show current value
+          cell.style.backgroundColor = getColor(data[weekIndex][dayIndex]);
+
+          // Event: Update value on blur
+          cell.addEventListener("blur", () => {
+            const value = parseInt(cell.textContent, 10) || 0;
+            data[weekIndex][dayIndex] = value; // Update data
+            cell.style.backgroundColor = getColor(value); // Update color
+          });
+
           grid.appendChild(cell);
         });
       });
@@ -82,35 +143,6 @@
       if (count >= 7 && count <= 9) return "#7fff7f"; // Green
       if (count >= 10) return "#006400"; // Dark green
     }
-
-    // Handle cell selection
-    function selectCell(cell) {
-      if (selectedCell) {
-        selectedCell.style.outline = ""; // Clear previous selection
-      }
-      selectedCell = cell;
-      cell.style.outline = "2px solid #0000ff"; // Highlight selected cell
-    }
-
-    // Apply the email count to the selected cell
-    document.getElementById("applyCount").addEventListener("click", () => {
-      if (!selectedCell) {
-        alert("Please select a day first.");
-        return;
-      }
-
-      const count = parseInt(emailCountInput.value, 10);
-      if (isNaN(count) || count < 0) {
-        alert("Please enter a valid email count (0-10).");
-        return;
-      }
-
-      // Update data and re-render grid
-      const week = selectedCell.getAttribute("data-week");
-      const day = selectedCell.getAttribute("data-day");
-      data[week][day] = count;
-      renderGrid();
-    });
 
     // Initial render
     renderGrid();
