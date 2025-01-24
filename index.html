@@ -9,27 +9,32 @@
       font-family: Arial, sans-serif;
       text-align: center;
       padding: 20px;
+      background-color: #ffffff;
+      color: #000000;
     }
     h1 {
-      margin-bottom: 20px;
+      margin-bottom: 30px;
     }
-    .chart-container {
+    .calendar {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr); /* 3 months per row */
+      gap: 20px;
+      justify-items: center;
+    }
+    .month {
+      text-align: center;
       display: flex;
+      flex-direction: column;
       align-items: center;
-      justify-content: center;
     }
-    .month-labels {
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      font-size: 14px;
-      margin-right: 10px;
-      text-align: right;
-      color: #555;
+    .month h2 {
+      font-size: 18px;
+      margin-bottom: 10px;
     }
-    .grid-container {
-      display: flex;
-      flex-direction: column;
+    .days {
+      display: grid;
+      grid-template-columns: repeat(7, 20px); /* 7 days per week */
+      gap: 4px;
     }
     .day-labels {
       display: grid;
@@ -39,11 +44,6 @@
       margin-bottom: 5px;
       color: #555;
     }
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(7, 20px); /* 7 days per week */
-      gap: 4px;
-    }
     .cell {
       width: 20px;
       height: 20px;
@@ -52,6 +52,7 @@
       text-align: center;
       font-size: 12px;
       line-height: 20px;
+      background-color: #f0f0f0; /* Default background */
     }
     .bg-0 { background-color: #f0f0f0; } /* White for 0 */
     .bg-1-6 { background-color: #ffff99; } /* Light yellow */
@@ -62,74 +63,76 @@
 <body>
   <h1>Sarup's email-tracker</h1>
 
-  <div class="chart-container">
-    <!-- Month Labels -->
-    <div class="month-labels">
-      <span>Jan</span>
-      <span>Feb</span>
-      <span>Mar</span>
-      <span>Apr</span>
-      <span>May</span>
-      <span>Jun</span>
-      <span>Jul</span>
-      <span>Aug</span>
-      <span>Sep</span>
-      <span>Oct</span>
-      <span>Nov</span>
-      <span>Dec</span>
-    </div>
-
-    <!-- Grid with Day Labels -->
-    <div class="grid-container">
-      <!-- Day Labels -->
-      <div class="day-labels">
-        <span>Mon</span>
-        <span>Tue</span>
-        <span>Wed</span>
-        <span>Thu</span>
-        <span>Fri</span>
-        <span>Sat</span>
-        <span>Sun</span>
-      </div>
-
-      <!-- Calendar Blocks -->
-      <div class="grid" id="grid"></div>
-    </div>
-  </div>
+  <div class="calendar" id="calendar"></div>
 
   <script>
-    const grid = document.getElementById("grid");
+    const calendarContainer = document.getElementById("calendar");
+    const months = [
+      "January", "February", "March", "April", "May", "June",
+      "July", "August", "September", "October", "November", "December"
+    ];
+    const daysInMonth = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+    const firstDayOfYear = new Date(2025, 0, 1).getDay(); // Jan 1, 2025
 
-    // Create a grid for 2025, following the calendar format
-    const firstDayOf2025 = new Date(2025, 0, 1); // January 1, 2025
-    const daysIn2025 = 365; // 2025 is not a leap year
-    let currentDay = firstDayOf2025.getDay(); // Day of the week (0 = Sunday)
+    let currentDay = firstDayOfYear;
 
-    // Render the grid
-    for (let i = 0; i < 12 * 7 * 6; i++) { // 12 months × 7 days × ~6 weeks per month
-      const cell = document.createElement("div");
-      cell.classList.add("cell", "bg-0"); // Default color
+    // Generate calendar for 2025
+    months.forEach((month, monthIndex) => {
+      const monthDiv = document.createElement("div");
+      monthDiv.classList.add("month");
 
-      // Only allow input for valid calendar days
-      if (i >= currentDay && i < daysIn2025 + currentDay) {
-        cell.contentEditable = true; // Allow input
+      // Month title
+      const monthTitle = document.createElement("h2");
+      monthTitle.textContent = month;
+      monthDiv.appendChild(monthTitle);
 
-        // Handle input changes
+      // Day labels
+      const dayLabels = document.createElement("div");
+      dayLabels.classList.add("day-labels");
+      ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].forEach((day) => {
+        const label = document.createElement("div");
+        label.textContent = day;
+        dayLabels.appendChild(label);
+      });
+      monthDiv.appendChild(dayLabels);
+
+      // Days grid
+      const daysGrid = document.createElement("div");
+      daysGrid.classList.add("days");
+
+      // Add empty cells for the first week
+      for (let i = 0; i < currentDay; i++) {
+        const emptyCell = document.createElement("div");
+        emptyCell.classList.add("cell", "bg-0");
+        daysGrid.appendChild(emptyCell);
+      }
+
+      // Add day cells for the month
+      for (let day = 1; day <= daysInMonth[monthIndex]; day++) {
+        const cell = document.createElement("div");
+        cell.classList.add("cell", "bg-0");
+        cell.contentEditable = true;
+
+        // Handle input to change color
         cell.addEventListener("blur", () => {
           const value = parseInt(cell.textContent, 10) || 0;
-          cell.textContent = ""; // Clear the input after entry
-          cell.className = "cell"; // Reset all classes
-
-          // Apply the correct color based on the value
+          cell.textContent = ""; // Clear input
+          cell.className = "cell"; // Reset class
           if (value === 0) cell.classList.add("bg-0");
           else if (value >= 1 && value <= 6) cell.classList.add("bg-1-6");
           else if (value >= 7 && value <= 9) cell.classList.add("bg-7-9");
           else if (value >= 10) cell.classList.add("bg-10");
         });
+
+        daysGrid.appendChild(cell);
       }
 
-      grid.appendChild(cell);
-    }
+      // Update the current day for the next month
+      currentDay = (currentDay + daysInMonth[monthIndex]) % 7;
+
+      monthDiv.appendChild(daysGrid);
+      calendarContainer.appendChild(monthDiv);
+    });
   </script>
 </body>
 </html>
