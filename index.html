@@ -80,7 +80,10 @@
     const currentYear = today.getFullYear();
     const currentMonth = today.getMonth(); // 0-based index for the current month
     const currentDate = today.getDate(); // Current day of the month
+    const savedDataKey = "email-tracker-2025"; // Key for local storage
 
+    // Load saved data or initialize empty data
+    const savedData = JSON.parse(localStorage.getItem(savedDataKey)) || {};
     let currentDay = firstDayOfYear;
 
     // Generate calendar for 2025
@@ -117,7 +120,12 @@
       // Add day cells for the month
       for (let day = 1; day <= daysInMonth[monthIndex]; day++) {
         const cell = document.createElement("div");
-        cell.classList.add("cell", "bg-0");
+        const cellKey = `${monthIndex}-${day}`;
+        const savedValue = savedData[cellKey] || 0;
+
+        // Apply saved color
+        cell.classList.add("cell");
+        applyColor(cell, savedValue);
 
         // Highlight today's date
         if (
@@ -130,7 +138,7 @@
 
         cell.contentEditable = true;
 
-        // Handle input to change color
+        // Handle input to change color and save to local storage
         cell.addEventListener("blur", () => {
           const value = parseInt(cell.textContent, 10) || 0;
 
@@ -142,12 +150,9 @@
             cell.textContent = ""; // Clear empty input
           }
 
-          // Assign color based on value
-          cell.className = "cell"; // Reset class
-          if (value === 0) cell.classList.add("bg-0");
-          else if (value >= 1 && value <= 6) cell.classList.add("bg-1-6");
-          else if (value >= 7 && value <= 9) cell.classList.add("bg-7-9");
-          else if (value >= 10) cell.classList.add("bg-10");
+          applyColor(cell, value);
+          savedData[cellKey] = value; // Save value
+          localStorage.setItem(savedDataKey, JSON.stringify(savedData)); // Update local storage
         });
 
         daysGrid.appendChild(cell);
@@ -159,6 +164,15 @@
       monthDiv.appendChild(daysGrid);
       calendarContainer.appendChild(monthDiv);
     });
+
+    // Function to apply color based on value
+    function applyColor(cell, value) {
+      cell.className = "cell"; // Reset class
+      if (value === 0) cell.classList.add("bg-0");
+      else if (value >= 1 && value <= 6) cell.classList.add("bg-1-6");
+      else if (value >= 7 && value <= 9) cell.classList.add("bg-7-9");
+      else if (value >= 10) cell.classList.add("bg-10");
+    }
   </script>
 </body>
 </html>
