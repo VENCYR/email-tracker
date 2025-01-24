@@ -20,36 +20,36 @@
     }
     .months {
       display: grid;
-      grid-template-columns: repeat(7, 1fr); /* Seven days per week */
-      gap: 8px;
-      font-size: 14px;
+      grid-template-columns: repeat(53, 12px); /* 52 weeks + spacing */
+      margin-left: 20px; /* Offset for day labels */
+      font-size: 10px;
       text-align: center;
       color: #555;
     }
     .grid-container {
       display: flex;
+    }
+    .day-labels {
+      display: flex;
       flex-direction: column;
-      align-items: center;
+      justify-content: space-between;
+      font-size: 10px;
+      margin-right: 5px;
+      color: #555;
     }
     .grid {
       display: grid;
-      grid-template-columns: repeat(7, 22px); /* Adjust block size */
-      gap: 4px;
-    }
-    .day-labels {
-      display: grid;
-      grid-template-columns: repeat(7, 22px);
-      gap: 4px;
-      font-size: 12px;
-      margin-bottom: 10px;
-      color: #555;
+      grid-template-columns: repeat(53, 12px); /* 52 weeks + spacing */
+      gap: 2px;
     }
     .cell {
-      width: 22px;
-      height: 22px;
-      border-radius: 3px;
+      width: 12px;
+      height: 12px;
+      border-radius: 2px;
       cursor: pointer;
       text-align: center;
+      font-size: 8px;
+      line-height: 12px;
     }
     .bg-0 { background-color: #f0f0f0; } /* White for 0 */
     .bg-1-6 { background-color: #ffff99; } /* Light yellow */
@@ -61,16 +61,23 @@
   <h1>Sarup's email-tracker</h1>
 
   <div class="chart-container">
+    <!-- Months -->
+    <div class="months">
+      <span>Jan</span><span></span><span></span><span>Feb</span><span></span><span></span>
+      <span>Mar</span><span></span><span></span><span>Apr</span><span></span><span></span>
+      <span>May</span><span></span><span></span><span>Jun</span><span></span><span></span>
+      <span>Jul</span><span></span><span></span><span>Aug</span><span></span><span></span>
+      <span>Sep</span><span></span><span></span><span>Oct</span><span></span><span></span>
+      <span>Nov</span><span></span><span></span><span>Dec</span>
+    </div>
+
+    <!-- Grid with Day Labels -->
     <div class="grid-container">
-      <!-- Days -->
+      <!-- Day Labels -->
       <div class="day-labels">
-        <span>Sun</span>
         <span>Mon</span>
-        <span>Tue</span>
         <span>Wed</span>
-        <span>Thu</span>
         <span>Fri</span>
-        <span>Sat</span>
       </div>
 
       <!-- Calendar Blocks -->
@@ -96,7 +103,7 @@
         cell.contentEditable = true; // Allow input
 
         // Handle input changes
-        cell.addEventListener("input", () => {
+        cell.addEventListener("blur", () => {
           const value = parseInt(cell.textContent, 10) || 0;
           cell.textContent = ""; // Clear the input after entry
           cell.className = "cell"; // Reset all classes
