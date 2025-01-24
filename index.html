@@ -17,8 +17,8 @@
     }
     .calendar {
       display: grid;
-      grid-template-columns: repeat(3, 1fr); /* 3 months per row */
-      gap: 30px; /* Adjust spacing between months */
+      grid-template-columns: repeat(6, 1fr); /* 6 months per row */
+      gap: 20px; /* Spacing between months */
       justify-items: center;
     }
     .month {
@@ -28,30 +28,30 @@
       align-items: center;
     }
     .month h2 {
-      font-size: 18px;
+      font-size: 16px;
       margin-bottom: 10px;
     }
     .days {
       display: grid;
-      grid-template-columns: repeat(7, 28px); /* 7 days per week */
-      gap: 5px;
+      grid-template-columns: repeat(7, 24px); /* 7 days per week */
+      gap: 2px; /* Compact layout */
     }
     .day-labels {
       display: grid;
-      grid-template-columns: repeat(7, 28px);
-      gap: 5px;
+      grid-template-columns: repeat(7, 24px);
+      gap: 2px;
       font-size: 12px;
       margin-bottom: 5px;
       color: #555;
     }
     .cell {
-      width: 28px;
-      height: 28px;
+      width: 24px;
+      height: 24px;
       border-radius: 3px;
       cursor: pointer;
       text-align: center;
       font-size: 12px;
-      line-height: 28px;
+      line-height: 24px;
       background-color: #f0f0f0; /* Default background */
     }
     .bg-0 { background-color: #f0f0f0; } /* White for 0 */
@@ -77,8 +77,9 @@
       "July", "August", "September", "October", "November", "December"
     ];
     const daysInMonth = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
-    const firstDayOfYear = new Date(2025, 0, 1).getDay(); // Jan 1, 2025
+    const firstDayOfYear = new Date(2025, 0, 1).getDay(); // Jan 1, 2025 starts on Wednesday
     const today = new Date(); // Current date
+    const currentYear = today.getFullYear();
     const currentMonth = today.getMonth(); // 0-based index for the current month
     const currentDate = today.getDate(); // Current day of the month
 
@@ -121,7 +122,11 @@
         cell.classList.add("cell", "bg-0");
 
         // Highlight today's date
-        if (monthIndex === currentMonth && day === currentDate) {
+        if (
+          currentYear === 2025 &&
+          monthIndex === currentMonth &&
+          day === currentDate
+        ) {
           cell.classList.add("today");
           cell.textContent = day; // Show today's date
         }
@@ -131,8 +136,8 @@
         // Handle input to change color
         cell.addEventListener("blur", () => {
           const value = parseInt(cell.textContent, 10) || 0;
-          if (monthIndex === currentMonth && day === currentDate) {
-            cell.textContent = day; // Retain today's styling and number
+          if (currentYear === 2025 && monthIndex === currentMonth && day === currentDate) {
+            cell.textContent = day; // Retain today's date
           } else {
             cell.textContent = ""; // Clear input
           }
@@ -142,168 +147,7 @@
           else if (value >= 7 && value <= 9) cell.classList.add("bg-7-9");
           else if (value >= 10) cell.classList.add("bg-10");
 
-          if (monthIndex === currentMonth && day === currentDate) {
-            cell.classList.add("today"); // Retain today's highlight
-          }
-        });
-
-        daysGrid.appendChild(cell);
-      }
-
-      // Update the current day for the next month
-      currentDay = (currentDay + daysInMonth[monthIndex]) % 7;
-
-      monthDiv.appendChild(daysGrid);
-      calendarContainer.appendChild(monthDiv);
-    });
-  </script>
-</body>
-</html>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sarup's email-tracker</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      text-align: center;
-      padding: 20px;
-      background-color: #ffffff;
-      color: #000000;
-    }
-    h1 {
-      margin-bottom: 30px;
-    }
-    .calendar {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr); /* 3 months per row */
-      gap: 30px; /* Adjust spacing between months */
-      justify-items: center;
-    }
-    .month {
-      text-align: center;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
-    .month h2 {
-      font-size: 18px;
-      margin-bottom: 10px;
-    }
-    .days {
-      display: grid;
-      grid-template-columns: repeat(7, 28px); /* 7 days per week */
-      gap: 5px;
-    }
-    .day-labels {
-      display: grid;
-      grid-template-columns: repeat(7, 28px);
-      gap: 5px;
-      font-size: 12px;
-      margin-bottom: 5px;
-      color: #555;
-    }
-    .cell {
-      width: 28px;
-      height: 28px;
-      border-radius: 3px;
-      cursor: pointer;
-      text-align: center;
-      font-size: 12px;
-      line-height: 28px;
-      background-color: #f0f0f0; /* Default background */
-    }
-    .bg-0 { background-color: #f0f0f0; } /* White for 0 */
-    .bg-1-6 { background-color: #ffff99; } /* Light yellow */
-    .bg-7-9 { background-color: #7fff7f; } /* Green */
-    .bg-10 { background-color: #006400; } /* Dark green */
-    .today {
-      background-color: #ffcccb !important; /* Highlight today's date */
-      font-weight: bold;
-      color: #000000;
-    }
-  </style>
-</head>
-<body>
-  <h1>Sarup's email-tracker</h1>
-
-  <div class="calendar" id="calendar"></div>
-
-  <script>
-    const calendarContainer = document.getElementById("calendar");
-    const months = [
-      "January", "February", "March", "April", "May", "June",
-      "July", "August", "September", "October", "November", "December"
-    ];
-    const daysInMonth = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
-    const firstDayOfYear = new Date(2025, 0, 1).getDay(); // Jan 1, 2025
-    const today = new Date(); // Current date
-    const currentMonth = today.getMonth(); // 0-based index for the current month
-    const currentDate = today.getDate(); // Current day of the month
-
-    let currentDay = firstDayOfYear;
-
-    // Generate calendar for 2025
-    months.forEach((month, monthIndex) => {
-      const monthDiv = document.createElement("div");
-      monthDiv.classList.add("month");
-
-      // Month title
-      const monthTitle = document.createElement("h2");
-      monthTitle.textContent = month;
-      monthDiv.appendChild(monthTitle);
-
-      // Day labels
-      const dayLabels = document.createElement("div");
-      dayLabels.classList.add("day-labels");
-      ["S", "M", "T", "W", "T", "F", "S"].forEach((day) => {
-        const label = document.createElement("div");
-        label.textContent = day;
-        dayLabels.appendChild(label);
-      });
-      monthDiv.appendChild(dayLabels);
-
-      // Days grid
-      const daysGrid = document.createElement("div");
-      daysGrid.classList.add("days");
-
-      // Add empty cells for the first week
-      for (let i = 0; i < currentDay; i++) {
-        const emptyCell = document.createElement("div");
-        emptyCell.classList.add("cell", "bg-0");
-        daysGrid.appendChild(emptyCell);
-      }
-
-      // Add day cells for the month
-      for (let day = 1; day <= daysInMonth[monthIndex]; day++) {
-        const cell = document.createElement("div");
-        cell.classList.add("cell", "bg-0");
-
-        // Highlight today's date
-        if (monthIndex === currentMonth && day === currentDate) {
-          cell.classList.add("today");
-          cell.textContent = day; // Show today's date
-        }
-
-        cell.contentEditable = true;
-
-        // Handle input to change color
-        cell.addEventListener("blur", () => {
-          const value = parseInt(cell.textContent, 10) || 0;
-          if (monthIndex === currentMonth && day === currentDate) {
-            cell.textContent = day; // Retain today's styling and number
-          } else {
-            cell.textContent = ""; // Clear input
-          }
-          cell.className = "cell"; // Reset class
-          if (value === 0) cell.classList.add("bg-0");
-          else if (value >= 1 && value <= 6) cell.classList.add("bg-1-6");
-          else if (value >= 7 && value <= 9) cell.classList.add("bg-7-9");
-          else if (value >= 10) cell.classList.add("bg-10");
-
-          if (monthIndex === currentMonth && day === currentDate) {
+          if (currentYear === 2025 && monthIndex === currentMonth && day === currentDate) {
             cell.classList.add("today"); // Retain today's highlight
           }
         });
